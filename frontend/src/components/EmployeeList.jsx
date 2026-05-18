@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { employeeService } from '../services/api';
 import SearchFilter from './SearchFilter';
 import { motion } from 'framer-motion';
@@ -21,19 +21,16 @@ const EmployeeList = ({ setAllEmployees }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const fetchEmployees = async (filters = {}) => {
+  const fetchEmployees = useCallback(async (filters = {}) => {
     setLoading(true);
     setError('');
     try {
       let response;
-      
-      // If there are any truthy filters, use search API
       if (Object.values(filters).some(val => val)) {
         response = await employeeService.search(filters);
       } else {
         response = await employeeService.getAll();
       }
-      
       setEmployees(response.data.data);
       if (setAllEmployees) {
         setAllEmployees(response.data.data);
@@ -43,11 +40,11 @@ const EmployeeList = ({ setAllEmployees }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setAllEmployees]);
 
   useEffect(() => {
     fetchEmployees();
-  }, []);
+  }, [fetchEmployees]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this employee?')) {

@@ -1,0 +1,36 @@
+services:
+  # ── Backend: Node.js Web Service ──────────────────────────
+  - type: web
+    name: employee-management-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false          # Set manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false          # Set manually in Render dashboard
+      - key: OPENROUTER_API_KEY
+        sync: false          # Set manually in Render dashboard
+      - key: FRONTEND_URL
+        sync: false          # Set to your Render static site URL after frontend deploys
+
+  # ── Frontend: Static Site ─────────────────────────────────
+  - type: web
+    name: employee-management-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        sync: false          # Set to your Render backend URL e.g. https://employee-management-backend.onrender.com/api
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html  # Required for React Router client-side routing
